@@ -1,0 +1,25 @@
+{
+  "name": "natur-persist",
+  "version": "1.0.0",
+  "description": "natur  localStorage持久化中间件",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://empty916@github.com/empty916/natur-persist.git"
+  },
+  "author": "empty916",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/empty916/natur-persist/issues"
+  },
+  "homepage": "https://github.com/empty916/natur-persist#readme",
+  "devDependencies": {
+    "natur": "^1.1.8",
+    "rimraf": "^3.0.2",
+    "typescript": "^3.8.2"
+  }
+}
