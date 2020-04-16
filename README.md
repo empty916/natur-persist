@@ -12,7 +12,7 @@ import { createStore } from 'natur';
 import createPersistMiddleware from 'natur-persist';
 
 
-const { middleware, getData, clearData } = createLsMiddleware({
+const { middleware, getData, clearData } = createPersistMiddleware({
   name: '_data',
   time: 500, // natur数据同步到localStorage的延迟
   specific: {
