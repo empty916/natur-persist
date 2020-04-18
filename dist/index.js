@@ -4,7 +4,7 @@ var removeLsData = function (name) { return window.localStorage.removeItem(name)
 var getKeys = function (keysReg) { return Object.keys(window.localStorage).filter(keysReg.test.bind(keysReg)); };
 var lsHasData = function (keysReg) { return !!getKeys(keysReg).length; };
 function createPersistMiddleware(_a) {
-    var _b = _a.name, name = _b === void 0 ? 'natur' : _b, _c = _a.time, time = _c === void 0 ? 100 : _c, exclude = _a.exclude, _d = _a.specific, specific = _d === void 0 ? {} : _d;
+    var _b = _a.name, name = _b === void 0 ? 'natur' : _b, _c = _a.time, time = _c === void 0 ? 100 : _c, exclude = _a.exclude, include = _a.include, _d = _a.specific, specific = _d === void 0 ? {} : _d;
     var lsData = {};
     var dataPrefix = name + "/";
     var keyOfNameReg = new RegExp("^" + dataPrefix + "[^]+");
@@ -31,12 +31,26 @@ function createPersistMiddleware(_a) {
         }
         return false;
     };
+    var includeModule = function (targetName) {
+        if (include) {
+            var shouldInclude = include.some(function (exc) {
+                if (exc instanceof RegExp) {
+                    return exc.test(targetName);
+                }
+                return exc === targetName;
+            });
+            return shouldInclude;
+        }
+        return true;
+    };
     var updateData = function (data, record) {
         if (excludeModule(record.moduleName)) {
             return;
         }
-        data[record.moduleName] = record.state;
-        saveToLocalStorage(record.moduleName, record.state);
+        if (includeModule(record.moduleName)) {
+            data[record.moduleName] = record.state;
+            saveToLocalStorage(record.moduleName, record.state);
+        }
     };
     var lsMiddleware = function () { return function (next) { return function (record) {
         updateData(lsData, record);

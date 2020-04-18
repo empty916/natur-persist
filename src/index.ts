@@ -13,11 +13,12 @@ type CreateLocalStorageMiddleware = {
 	name?: string,
 	time?: number,
 	exclude?: Array<RegExp|string>,
+	include?: Array<RegExp|string>,
 	specific?: {
 		[n: string]: number,
 	}
 }
-function createPersistMiddleware({name = 'natur', time = 100, exclude, specific = {}}: CreateLocalStorageMiddleware) {
+function createPersistMiddleware({name = 'natur', time = 100, exclude, include, specific = {}}: CreateLocalStorageMiddleware) {
 	let lsData: Data = {};
 	const dataPrefix = `${name}/`;
 	const keyOfNameReg = new RegExp(`^${dataPrefix}[^]+`);
@@ -43,6 +44,18 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, specific 
 		}
 		return false;
 	};
+	const includeModule = (targetName: string) => {
+		if (include) {
+			const shouldInclude = include.some(exc => {
+				if (exc instanceof RegExp) {
+					return exc.test(targetName);
+				}
+				return exc === targetName;
+			});
+			return shouldInclude;
+		}
+		return true;
+	};
 	const updateData = (
 		data: Data,
 		record: { moduleName: string | number; state: any },
@@ -50,8 +63,10 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, specific 
 		if (excludeModule(record.moduleName as string)) {
 			return;
 		}
-		data[record.moduleName] = record.state;
-		saveToLocalStorage(record.moduleName, record.state);
+		if (includeModule(record.moduleName as string)) {
+			data[record.moduleName] = record.state;
+			saveToLocalStorage(record.moduleName, record.state);
+		}
 	};
 
 	const lsMiddleware: Middleware = () => next => record => {
