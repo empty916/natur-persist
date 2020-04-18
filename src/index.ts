@@ -70,6 +70,7 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, include, 
 		keys.value.forEach(m => {
 			if (excludeModule(m) || !includeModule(m)) {
 				keys.remove(m);
+				store.remove(`${dataPrefix}${m}`);
 			}
 		})
 	})()
