@@ -31,7 +31,7 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, include, 
 	const keys = new Keys(store, dataPrefix);
 	const isSaving: any = {};
 
-	const saveToLocalStorage = (key: string|number, data: any) => {
+	const debounceSave = (key: string|number, data: any) => {
 		const _time = specific[key] !== undefined ? specific[key] : time;
 		if (_time === 0) {
 			store.set(`${dataPrefix}${key}`, data);
@@ -75,7 +75,7 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, include, 
 		if (includeModule(moduleName)) {
 			keys.set(moduleName);
 			data[moduleName] = state;
-			saveToLocalStorage(moduleName, state);
+			debounceSave(moduleName, state);
 		}
 	};
 	const lsMiddleware: Middleware = () => next => record => {
@@ -85,11 +85,11 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, include, 
 	const getData = () => lsData;
 	const clearData = () => {
 		lsData = {};
-		keys.value.forEach((moduleName: string) => store.remove(moduleName));
+		keys.get().forEach((moduleName: string) => store.remove(moduleName));
 	};
 
-	if (keys.value.length) {
-		lsData = keys.value.reduce((res, key) => {
+	if (keys.get().length) {
+		lsData = keys.get().reduce((res, key) => {
 			res[key.replace(dataPrefix, '')] = store.get(key);
 			return res;
 		}, {} as Data);

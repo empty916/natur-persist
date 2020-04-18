@@ -14,7 +14,7 @@ function createPersistMiddleware(_a) {
     var dataPrefix = name + "/";
     var keys = new Keys(store, dataPrefix);
     var isSaving = {};
-    var saveToLocalStorage = function (key, data) {
+    var debounceSave = function (key, data) {
         var _time = specific[key] !== undefined ? specific[key] : time;
         if (_time === 0) {
             store.set("" + dataPrefix + key, data);
@@ -56,7 +56,7 @@ function createPersistMiddleware(_a) {
         if (includeModule(moduleName)) {
             keys.set(moduleName);
             data[moduleName] = state;
-            saveToLocalStorage(moduleName, state);
+            debounceSave(moduleName, state);
         }
     };
     var lsMiddleware = function () { return function (next) { return function (record) {
@@ -66,10 +66,10 @@ function createPersistMiddleware(_a) {
     var getData = function () { return lsData; };
     var clearData = function () {
         lsData = {};
-        keys.value.forEach(function (moduleName) { return store.remove(moduleName); });
+        keys.get().forEach(function (moduleName) { return store.remove(moduleName); });
     };
-    if (keys.value.length) {
-        lsData = keys.value.reduce(function (res, key) {
+    if (keys.get().length) {
+        lsData = keys.get().reduce(function (res, key) {
             res[key.replace(dataPrefix, '')] = store.get(key);
             return res;
         }, {});

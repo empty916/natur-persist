@@ -4,10 +4,9 @@ export default class Keys {
     store: Store;
     name: string;
     prefix: string;
-    addPrefix: (s: string) => string;
     constructor(store: Store, dataPrefix: string);
-    set(_moduleName: string): void;
-    has(_moduleName: string): boolean;
+    set(moduleName: string): void;
+    has(moduleName: string): boolean;
     get(): string[];
     clear(): void;
 }
