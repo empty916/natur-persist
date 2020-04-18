@@ -26,7 +26,7 @@ const store = new Store({
 
 
 function createPersistMiddleware({name = 'natur', time = 100, exclude, include, specific = {}}: CreateLocalStorageMiddleware) {
-	let lsData: Data = {};
+	let lsData: Data | undefined = undefined;
 	const dataPrefix = `${name}/`;
 	const keys = new Keys(store, dataPrefix);
 	const isSaving: any = {};
@@ -90,13 +90,17 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, include, 
 		}
 	};
 	const lsMiddleware: Middleware = () => next => record => {
+		if (lsData === undefined) {
+			lsData = {};
+		}
 		updateData(lsData, record as any);
 		return next(record);
 	};
 	const getData = () => lsData;
 	const clearData = () => {
-		lsData = {};
+		lsData = undefined;
 		keys.get().forEach((moduleName: string) => store.remove(moduleName));
+		keys.clear();
 	};
 
 	if (keys.get().length) {
