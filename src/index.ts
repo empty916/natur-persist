@@ -1,13 +1,12 @@
 import { Middleware } from 'natur';
+import Store from './Store';
+import Keys from './Keys';
 
 type Data = { [m: string]: any };
 
-const setLsData = (name: string, data: Data) => window.localStorage[name] = JSON.stringify(data);
+const setLsData = (name: string, data: Data) => window.localStorage.setItem(name, JSON.stringify(data));
 const getLsData = (name: string) => JSON.parse(window.localStorage[name]) as Data;
 const removeLsData = (name: string) => window.localStorage.removeItem(name);
-const getKeys = (keysReg: RegExp) => Object.keys(window.localStorage).filter(keysReg.test.bind(keysReg));
-const lsHasData = (keysReg: RegExp): boolean => !!getKeys(keysReg).length;
-
 
 type CreateLocalStorageMiddleware = {
 	name?: string,
@@ -18,18 +17,27 @@ type CreateLocalStorageMiddleware = {
 		[n: string]: number,
 	}
 }
+
+const store = new Store({
+	set: setLsData,
+	get: getLsData,
+	remove: removeLsData,
+});
+
+
 function createPersistMiddleware({name = 'natur', time = 100, exclude, include, specific = {}}: CreateLocalStorageMiddleware) {
 	let lsData: Data = {};
 	const dataPrefix = `${name}/`;
-	const keyOfNameReg = new RegExp(`^${dataPrefix}[^]+`);
+	const keys = new Keys(store, dataPrefix);
 	const isSaving: any = {};
+
 	const saveToLocalStorage = (key: string|number, data: any) => {
 		const _time = specific[key] !== undefined ? specific[key] : time;
 		if (_time === 0) {
-			setLsData(`${dataPrefix}${key}`, data);
+			store.set(`${dataPrefix}${key}`, data);
 		} else {
 			clearTimeout(isSaving[key]);
-			isSaving[key] = setTimeout(() => setLsData(`${dataPrefix}${key}`, data), time);
+			isSaving[key] = setTimeout(() => store.set(`${dataPrefix}${key}`, data), time);
 		}
 	};
 	const excludeModule = (targetName: string) => {
@@ -58,36 +66,33 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, include, 
 	};
 	const updateData = (
 		data: Data,
-		record: { moduleName: string | number; state: any },
+		record: { moduleName: string; state: any },
 	) => {
-		if (excludeModule(record.moduleName as string)) {
+		const {moduleName, state} = record;
+		if (excludeModule(moduleName)) {
 			return;
 		}
-		if (includeModule(record.moduleName as string)) {
-			data[record.moduleName] = record.state;
-			saveToLocalStorage(record.moduleName, record.state);
+		if (includeModule(moduleName)) {
+			keys.set(moduleName);
+			data[moduleName] = state;
+			saveToLocalStorage(moduleName, state);
 		}
 	};
-
 	const lsMiddleware: Middleware = () => next => record => {
-		updateData(lsData, record);
+		updateData(lsData, record as any);
 		return next(record);
 	};
 	const getData = () => lsData;
 	const clearData = () => {
 		lsData = {};
-		getKeys(keyOfNameReg).forEach(removeLsData);
+		keys.value.forEach((moduleName: string) => store.remove(moduleName));
 	};
 
-	if (lsHasData(keyOfNameReg)) {
-		try {
-			lsData = getKeys(keyOfNameReg).reduce((res, key) => {
-				res[key.replace(dataPrefix, '')] = getLsData(key);
-				return res;
-			}, {} as Data);
-		} catch (error) {
-			lsData = {};
-		}
+	if (keys.value.length) {
+		lsData = keys.value.reduce((res, key) => {
+			res[key.replace(dataPrefix, '')] = store.get(key);
+			return res;
+		}, {} as Data);
 	}
 
 	return {

@@ -1,22 +1,27 @@
-var setLsData = function (name, data) { return window.localStorage[name] = JSON.stringify(data); };
+import Store from './Store';
+import Keys from './Keys';
+var setLsData = function (name, data) { return window.localStorage.setItem(name, JSON.stringify(data)); };
 var getLsData = function (name) { return JSON.parse(window.localStorage[name]); };
 var removeLsData = function (name) { return window.localStorage.removeItem(name); };
-var getKeys = function (keysReg) { return Object.keys(window.localStorage).filter(keysReg.test.bind(keysReg)); };
-var lsHasData = function (keysReg) { return !!getKeys(keysReg).length; };
+var store = new Store({
+    set: setLsData,
+    get: getLsData,
+    remove: removeLsData
+});
 function createPersistMiddleware(_a) {
     var _b = _a.name, name = _b === void 0 ? 'natur' : _b, _c = _a.time, time = _c === void 0 ? 100 : _c, exclude = _a.exclude, include = _a.include, _d = _a.specific, specific = _d === void 0 ? {} : _d;
     var lsData = {};
     var dataPrefix = name + "/";
-    var keyOfNameReg = new RegExp("^" + dataPrefix + "[^]+");
+    var keys = new Keys(store, dataPrefix);
     var isSaving = {};
     var saveToLocalStorage = function (key, data) {
         var _time = specific[key] !== undefined ? specific[key] : time;
         if (_time === 0) {
-            setLsData("" + dataPrefix + key, data);
+            store.set("" + dataPrefix + key, data);
         }
         else {
             clearTimeout(isSaving[key]);
-            isSaving[key] = setTimeout(function () { return setLsData("" + dataPrefix + key, data); }, time);
+            isSaving[key] = setTimeout(function () { return store.set("" + dataPrefix + key, data); }, time);
         }
     };
     var excludeModule = function (targetName) {
@@ -44,12 +49,14 @@ function createPersistMiddleware(_a) {
         return true;
     };
     var updateData = function (data, record) {
-        if (excludeModule(record.moduleName)) {
+        var moduleName = record.moduleName, state = record.state;
+        if (excludeModule(moduleName)) {
             return;
         }
-        if (includeModule(record.moduleName)) {
-            data[record.moduleName] = record.state;
-            saveToLocalStorage(record.moduleName, record.state);
+        if (includeModule(moduleName)) {
+            keys.set(moduleName);
+            data[moduleName] = state;
+            saveToLocalStorage(moduleName, state);
         }
     };
     var lsMiddleware = function () { return function (next) { return function (record) {
@@ -59,18 +66,13 @@ function createPersistMiddleware(_a) {
     var getData = function () { return lsData; };
     var clearData = function () {
         lsData = {};
-        getKeys(keyOfNameReg).forEach(removeLsData);
+        keys.value.forEach(function (moduleName) { return store.remove(moduleName); });
     };
-    if (lsHasData(keyOfNameReg)) {
-        try {
-            lsData = getKeys(keyOfNameReg).reduce(function (res, key) {
-                res[key.replace(dataPrefix, '')] = getLsData(key);
-                return res;
-            }, {});
-        }
-        catch (error) {
-            lsData = {};
-        }
+    if (keys.value.length) {
+        lsData = keys.value.reduce(function (res, key) {
+            res[key.replace(dataPrefix, '')] = store.get(key);
+            return res;
+        }, {});
     }
     return {
         middleware: lsMiddleware,
