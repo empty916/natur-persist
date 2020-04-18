@@ -13,7 +13,7 @@ declare type CreateLocalStorageMiddleware = {
 };
 declare function createPersistMiddleware({ name, time, exclude, include, specific }: CreateLocalStorageMiddleware): {
     middleware: Middleware;
-    getData: () => Data;
+    getData: () => Data | undefined;
     clearData: () => void;
 };
 export default createPersistMiddleware;

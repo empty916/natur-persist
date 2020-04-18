@@ -10,7 +10,7 @@ var store = new Store({
 });
 function createPersistMiddleware(_a) {
     var _b = _a.name, name = _b === void 0 ? 'natur' : _b, _c = _a.time, time = _c === void 0 ? 100 : _c, exclude = _a.exclude, include = _a.include, _d = _a.specific, specific = _d === void 0 ? {} : _d;
-    var lsData = {};
+    var lsData = undefined;
     var dataPrefix = name + "/";
     var keys = new Keys(store, dataPrefix);
     var isSaving = {};
@@ -69,13 +69,17 @@ function createPersistMiddleware(_a) {
         }
     };
     var lsMiddleware = function () { return function (next) { return function (record) {
+        if (lsData === undefined) {
+            lsData = {};
+        }
         updateData(lsData, record);
         return next(record);
     }; }; };
     var getData = function () { return lsData; };
     var clearData = function () {
-        lsData = {};
+        lsData = undefined;
         keys.get().forEach(function (moduleName) { return store.remove(moduleName); });
+        keys.clear();
     };
     if (keys.get().length) {
         lsData = keys.get().reduce(function (res, key) {
