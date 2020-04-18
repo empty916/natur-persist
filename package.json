@@ -1,6 +1,6 @@
 {
   "name": "natur-persist",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "natur  localStorage持久化中间件",
   "main": "dist/index.js",
   "scripts": {
