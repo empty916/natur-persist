@@ -7,6 +7,7 @@ export default class Keys {
     constructor(store: Store, dataPrefix: string);
     set(moduleName: string): void;
     has(moduleName: string): boolean;
+    remove(moduleName: string): void;
     get(): string[];
     clear(): void;
 }

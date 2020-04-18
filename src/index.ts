@@ -64,6 +64,16 @@ function createPersistMiddleware({name = 'natur', time = 100, exclude, include, 
 		}
 		return true;
 	};
+
+	// 同步excludeModule、includeModule配置到keys
+	(function syncConfig(){
+		keys.value.forEach(m => {
+			if (excludeModule(m) || !includeModule(m)) {
+				keys.remove(m);
+			}
+		})
+	})()
+
 	const updateData = (
 		data: Data,
 		record: { moduleName: string; state: any },

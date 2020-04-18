@@ -48,6 +48,14 @@ function createPersistMiddleware(_a) {
         }
         return true;
     };
+    // 同步excludeModule、includeModule配置到keys
+    (function syncConfig() {
+        keys.value.forEach(function (m) {
+            if (excludeModule(m) || !includeModule(m)) {
+                keys.remove(m);
+            }
+        });
+    })();
     var updateData = function (data, record) {
         var moduleName = record.moduleName, state = record.state;
         if (excludeModule(moduleName)) {

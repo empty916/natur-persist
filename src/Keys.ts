@@ -22,10 +22,17 @@ export default class Keys {
     has(moduleName: string) {
         return this.value.includes(moduleName);
     }
+    remove(moduleName: string) {
+        if (this.has(moduleName)) {
+            this.value = this.value.filter(m => m !== moduleName);
+            this.store.set(this.name, this.value);
+        }
+    }
     get() {
         return this.value.map((mn: string) => `${this.prefix}${mn}`);
     }
     clear() {
+        this.value = [];
         this.store.remove(this.name);
     }
 }
