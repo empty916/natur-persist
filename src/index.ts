@@ -4,28 +4,38 @@ import Keys from './Keys';
 
 type Data = { [m: string]: any };
 
-const setLsData = (name: string, data: Data) => window.localStorage.setItem(name, JSON.stringify(data));
-const getLsData = (name: string) => JSON.parse(window.localStorage[name]) as Data;
-const removeLsData = (name: string) => window.localStorage.removeItem(name);
-
 type CreateLocalStorageMiddleware = {
-	name?: string,
-	time?: number,
-	exclude?: Array<RegExp|string>,
-	include?: Array<RegExp|string>,
+	name?: string;
+	time?: number;
+	exclude?: Array<RegExp|string>;
+	include?: Array<RegExp|string>;
+	storageType?: 'localStorage' | 'sessionStorage';
 	specific?: {
-		[n: string]: number,
+		[n: string]: number;
 	}
 }
 
-const store = new Store({
-	set: setLsData,
-	get: getLsData,
-	remove: removeLsData,
-});
 
+function createPersistMiddleware({
+	name = 'natur',
+	time = 100,
+	exclude,
+	include,
+	storageType = 'localStorage',
+	specific = {}
+}: CreateLocalStorageMiddleware) {
+	
+	const setLsData = (name: string, data: Data) => window[storageType].setItem(name, JSON.stringify(data));
+	const getLsData = (name: string) => JSON.parse(window[storageType][name]) as Data;
+	const removeLsData = (name: string) => window[storageType].removeItem(name);
 
-function createPersistMiddleware({name = 'natur', time = 100, exclude, include, specific = {}}: CreateLocalStorageMiddleware) {
+	const store = new Store({
+		set: setLsData,
+		get: getLsData,
+		remove: removeLsData,
+	});
+
+	
 	let lsData: Data | undefined = undefined;
 	const dataPrefix = `${name}/`;
 	const keys = new Keys(store, dataPrefix);

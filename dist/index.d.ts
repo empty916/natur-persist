@@ -7,11 +7,12 @@ declare type CreateLocalStorageMiddleware = {
     time?: number;
     exclude?: Array<RegExp | string>;
     include?: Array<RegExp | string>;
+    storageType?: 'localStorage' | 'sessionStorage';
     specific?: {
         [n: string]: number;
     };
 };
-declare function createPersistMiddleware({ name, time, exclude, include, specific }: CreateLocalStorageMiddleware): {
+declare function createPersistMiddleware({ name, time, exclude, include, storageType, specific }: CreateLocalStorageMiddleware): {
     middleware: Middleware;
     getData: () => Data | undefined;
     clearData: () => void;

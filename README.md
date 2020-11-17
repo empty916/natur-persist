@@ -20,6 +20,8 @@ const { middleware, getData, clearData } = createPersistMiddleware({
   specific: {
     user: 0, // 用户模块的保存延迟为0，意为用户模块的数据同步到localStorage是同步的
   },
+  storageType: 'localStorage', // 缓存类型，localStorage(默认), 或者sessionStorage;
+  
 });
 
 clearData() // 清除缓存数据
