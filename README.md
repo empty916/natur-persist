@@ -5,6 +5,7 @@
 - 将natur数据同步到localStorage，
 - 同步操作有一定的延迟，使用防抖做同步操作
 
+
 ## demo
 
 ````typescript
@@ -29,10 +30,12 @@ clearData() // 清除缓存数据
 const store = createStore(
   {},
   {}
-  getData(), // 获取localStorage中的缓存数据
-  [
-    middleware, // 使用中间件
-  ],
+  {
+    initStates: getData(), // 获取localStorage中的缓存数据
+    middlewares: [
+      middleware, // 使用中间件, 同步数据到storage
+    ]
+  }
 );
 
 ````
