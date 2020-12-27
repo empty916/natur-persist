@@ -1,18 +1,23 @@
-import Store from './Store';
-import Keys from './Keys';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+var Store_1 = __importDefault(require("./Store"));
+var Keys_1 = __importDefault(require("./Keys"));
 function createPersistMiddleware(_a) {
     var _b = _a.name, name = _b === void 0 ? 'natur' : _b, _c = _a.time, time = _c === void 0 ? 100 : _c, exclude = _a.exclude, include = _a.include, _d = _a.storageType, storageType = _d === void 0 ? 'localStorage' : _d, _e = _a.specific, specific = _e === void 0 ? {} : _e;
     var setLsData = function (name, data) { return window[storageType].setItem(name, JSON.stringify(data)); };
     var getLsData = function (name) { return JSON.parse(window[storageType][name]); };
     var removeLsData = function (name) { return window[storageType].removeItem(name); };
-    var store = new Store({
+    var store = new Store_1["default"]({
         set: setLsData,
         get: getLsData,
         remove: removeLsData
     });
     var lsData = undefined;
     var dataPrefix = name + "/";
-    var keys = new Keys(store, dataPrefix);
+    var keys = new Keys_1["default"](store, dataPrefix);
     var isSaving = {};
     var debounceSave = function (key, data) {
         var _time = specific[key] !== undefined ? specific[key] : time;
@@ -93,4 +98,4 @@ function createPersistMiddleware(_a) {
         clearData: clearData
     };
 }
-export default createPersistMiddleware;
+exports["default"] = createPersistMiddleware;

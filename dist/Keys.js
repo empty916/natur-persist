@@ -1,3 +1,5 @@
+"use strict";
+exports.__esModule = true;
 var Keys = /** @class */ (function () {
     function Keys(store, dataPrefix) {
         this.store = store;
@@ -31,4 +33,4 @@ var Keys = /** @class */ (function () {
     };
     return Keys;
 }());
-export default Keys;
+exports["default"] = Keys;

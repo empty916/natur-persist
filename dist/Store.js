@@ -1,3 +1,5 @@
+"use strict";
+exports.__esModule = true;
 var Store = /** @class */ (function () {
     function Store(_a) {
         var set = _a.set, get = _a.get, remove = _a.remove;
@@ -27,4 +29,4 @@ var Store = /** @class */ (function () {
     };
     return Store;
 }());
-export default Store;
+exports["default"] = Store;
