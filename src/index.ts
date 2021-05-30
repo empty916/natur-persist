@@ -99,7 +99,7 @@ function createPersistMiddleware({
 			debounceSave(moduleName, state);
 		}
 	};
-	const lsMiddleware: Middleware = () => next => record => {
+	const lsMiddleware: Middleware<any> = () => next => record => {
 		if (lsData === undefined) {
 			lsData = {};
 		}

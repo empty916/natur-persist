@@ -4,10 +4,14 @@
   "description": "natur  localStorage持久化中间件",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "rimraf dist && tsc",
-    "pub": "yarn build && yarn publish"
+    "prepublish": "npm run test && npm run build",
+    "pub": "yarn publish"
   },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://empty916@github.com/empty916/natur-persist.git"
@@ -19,8 +23,12 @@
   },
   "homepage": "https://github.com/empty916/natur-persist#readme",
   "devDependencies": {
-    "natur": "^1.1.8",
+    "@types/jest": "^26.0.23",
+    "jest": "^27.0.3",
+    "natur": "^2.1.x",
+    "react": "^17.0.2",
     "rimraf": "^3.0.2",
+    "ts-jest": "^27.0.1",
     "typescript": "^3.8.2"
   }
 }
